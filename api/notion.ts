@@ -15,7 +15,6 @@ interface User {
   role: string;
 }
 
-// Define interface for your services database
 interface Service {
   id: string;
   name: string;
@@ -26,21 +25,47 @@ interface Service {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // Add CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   if (req.method !== 'GET') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
   const { database } = req.query;
 
+  // Debug logging
+  console.log('Environment check:');
+  console.log('NOTION_INTEGRATION_SECRET exists:', !!process.env.NOTION_INTEGRATION_SECRET);
+  console.log('NOTION_DATABASE_ID exists:', !!process.env.NOTION_DATABASE_ID);
+  console.log('NOTION_USERS_DATABASE_ID exists:', !!process.env.NOTION_USERS_DATABASE_ID);
+  console.log('NOTION_SERVICES_DATABASE_ID exists:', !!process.env.NOTION_SERVICES_DATABASE_ID);
+  console.log('Requested database:', database);
+
   try {
     if (database === 'users' || !database) {
       // Users database logic
-      const databaseId = process.env.NOTION_USERS_DATABASE_ID;
+      const databaseId = process.env.NOTION_DATABASE_ID || process.env.NOTION_USERS_DATABASE_ID;
       
       if (!databaseId) {
-        return res.status(500).json({ message: 'NOTION_USERS_DATABASE_ID environment variable is not set' });
+        console.error('Missing database ID for users');
+        return res.status(500).json({ 
+          message: 'NOTION_DATABASE_ID or NOTION_USERS_DATABASE_ID environment variable is not set',
+          debug: {
+            hasNotionSecret: !!process.env.NOTION_INTEGRATION_SECRET,
+            hasUsersDb: !!process.env.NOTION_USERS_DATABASE_ID,
+            hasMainDb: !!process.env.NOTION_DATABASE_ID
+          }
+        });
       }
       
+      console.log('Querying users database:', databaseId.slice(-8));
       const response = await notion.databases.query({
         database_id: databaseId,
       });
@@ -63,15 +88,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             : '',
         }));
 
+      console.log(`Successfully fetched ${users.length} users`);
       res.status(200).json(users);
     } else if (database === 'services') {
       // Services database logic
       const servicesDatabaseId = process.env.NOTION_SERVICES_DATABASE_ID;
       
       if (!servicesDatabaseId) {
-        return res.status(500).json({ message: 'NOTION_SERVICES_DATABASE_ID environment variable is not set' });
+        console.error('Missing services database ID');
+        return res.status(500).json({ 
+          message: 'NOTION_SERVICES_DATABASE_ID environment variable is not set',
+          debug: {
+            hasNotionSecret: !!process.env.NOTION_INTEGRATION_SECRET,
+            hasServicesDb: !!process.env.NOTION_SERVICES_DATABASE_ID
+          }
+        });
       }
       
+      console.log('Querying services database:', servicesDatabaseId.slice(-8));
       const response = await notion.databases.query({
         database_id: servicesDatabaseId,
       });
@@ -101,12 +135,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             : '',
         }));
 
+      console.log(`Successfully fetched ${services.length} services`);
       res.status(200).json(services);
     } else {
       res.status(400).json({ message: 'Invalid database parameter. Use "users" or "services"' });
     }
   } catch (error) {
     console.error('Error fetching Notion data:', error);
-    res.status(500).json({ message: 'Failed to fetch data from Notion' });
+    return res.status(500).json({ 
+      message: 'Failed to fetch data from Notion',
+      error: error instanceof Error ? error.message : 'Unknown error',
+      debug: {
+        hasNotionSecret: !!process.env.NOTION_INTEGRATION_SECRET,
+        requestedDatabase: database
+      }
+    });
   }
 }
