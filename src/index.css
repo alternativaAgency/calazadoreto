@@ -1,16 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  /* Use Inter font */
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: light dark;
-  color: #FFF;
-  background-color: #242424;
+  color: #FFF; /* Light text on dark background by default for root */
+  background-color: #1a1a1a; /* Darker background for the overall app */
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Basic body styles for full height */
+body, #root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure main content areas take available space */
+.root-layout, .auth-layout, .public-layout {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
