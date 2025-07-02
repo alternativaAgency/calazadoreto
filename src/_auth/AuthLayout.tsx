@@ -9,7 +9,7 @@ const AuthLayout = () => {
         {/* Global Header */}
         <header className="shadow-lg py-4 px-7 flex justify-between items-center rounded-b-lg">
           <Link to="/" className="text-2xl font-bold text-indigo-400 hover:text-indigo-300 transition-colors">
-            Calazadoreto App
+            Development App
           </Link>
           <nav>
             <div className="flex items-center space-x-6">
