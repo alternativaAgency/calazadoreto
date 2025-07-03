@@ -1,0 +1,19 @@
+// tsconfig.server.json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS", // Crucial: Compile to CommonJS
+    "esModuleInterop": true, // Recommended for better interop between CJS and ESM
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "outDir": "./dist/api", // Output API compiled files to a specific directory
+    "rootDir": "./api", // Source files are in the api directory
+    "baseUrl": ".",
+    "paths": {
+      "*": ["node_modules/*"]
+    }
+  },
+  "include": ["api/**/*.ts"], // Only include your API files
+  "exclude": ["node_modules", "dist"]
+}
