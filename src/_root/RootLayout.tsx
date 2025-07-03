@@ -9,7 +9,7 @@ const RootLayout = () => {
         {/* Global Header */}
         <header className="shadow-lg py-4 px-7 flex justify-between items-center rounded-b-lg">
           <Link to="/" className="text-2xl font-bold text-indigo-400 hover:text-indigo-300 transition-colors">
-            Calazadoreto App
+            Desenvolvimento App
           </Link>
           <nav>
             <ul className="flex space-x-4 items-center">

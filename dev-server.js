@@ -7,7 +7,7 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 
 const app = express();
-const PORT = 3001;
+const PORT = 3003;
 
 // Initialize Notion client
 const notion = new Client({
